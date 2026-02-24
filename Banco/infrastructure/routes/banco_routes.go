@@ -27,7 +27,7 @@ func SetupBancoRoutes(router *gin.Engine, db *sql.DB) {
 	deleteCtrl := controllers.NewDeleteBancoController(deleteUseCase)
 
 
-	bancos := router.Group("/api/v1/bancos")
+	bancos := router.Group("/atlasApp/bancos")
 	{
 		bancos.POST("", createCtrl.Handle)      
 		bancos.GET("", getAllCtrl.Handle)        
