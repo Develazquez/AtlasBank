@@ -9,4 +9,5 @@ type IUsuarioRepository interface {
 	Update(usuario *entities.Usuario) error
 	Delete(id int) error
 	GetByEmail(email string) (*entities.Usuario, error)
+	LoginUsuario(email, password string) (*entities.Usuario, error)
 }

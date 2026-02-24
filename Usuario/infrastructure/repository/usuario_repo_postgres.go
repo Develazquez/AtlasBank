@@ -131,9 +131,9 @@ func (r *UsuarioRepositoryPostgres) Delete(id int) error {
 
 func (r *UsuarioRepositoryPostgres) GetByEmail(email string) (*entities.Usuario, error) {
 	query := `
-		SELECT id_usuario, nombre, apellido, email, telefono, fecha_nacimiento, created_at, updated_at
-		FROM usuarios WHERE email = $1
-	`
+			   SELECT id_usuario, nombre, apellido, email, telefono, fecha_nacimiento, password, created_at, updated_at
+			   FROM usuarios WHERE email = $1
+	   `
 
 	usuario := &entities.Usuario{}
 	err := r.db.QueryRow(query, email).Scan(
@@ -143,6 +143,7 @@ func (r *UsuarioRepositoryPostgres) GetByEmail(email string) (*entities.Usuario,
 		&usuario.Email,
 		&usuario.Telefono,
 		&usuario.FechaNacimiento,
+		&usuario.Password,
 		&usuario.CreatedAt,
 		&usuario.UpdatedAt,
 	)
@@ -154,5 +155,31 @@ func (r *UsuarioRepositoryPostgres) GetByEmail(email string) (*entities.Usuario,
 		return nil, err
 	}
 
+	return usuario, nil
+}
+
+func (r *UsuarioRepositoryPostgres) LoginUsuario(email, password string) (*entities.Usuario, error) {
+	query := `SELECT id_usuario, nombre, apellido, email, telefono, fecha_nacimiento, password, created_at, updated_at FROM usuarios WHERE email = $1`
+	usuario := &entities.Usuario{}
+	err := r.db.QueryRow(query, email).Scan(
+		&usuario.IDUsuario,
+		&usuario.Nombre,
+		&usuario.Apellido,
+		&usuario.Email,
+		&usuario.Telefono,
+		&usuario.FechaNacimiento,
+		&usuario.Password,
+		&usuario.CreatedAt,
+		&usuario.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return nil, entities.ErrUsuarioNoEncontrado
+	}
+	if err != nil {
+		return nil, err
+	}
+	if usuario.Password != password {
+		return nil, entities.ErrUsuarioNoEncontrado
+	}
 	return usuario, nil
 }

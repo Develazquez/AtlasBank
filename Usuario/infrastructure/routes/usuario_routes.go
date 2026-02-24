@@ -13,6 +13,7 @@ import (
 func SetupUsuarioRoutes(router *gin.Engine, db *sql.DB) {
 	usuarioRepo := repo.NewUsuarioRepositoryPostgres(db)
 
+
 	createUseCase := application.NewCreateUsuarioUseCase(usuarioRepo)
 	getUseCase := application.NewGetUsuarioUseCase(usuarioRepo)
 	getAllUseCase := application.NewGetAllUsuariosUseCase(usuarioRepo)
@@ -24,6 +25,7 @@ func SetupUsuarioRoutes(router *gin.Engine, db *sql.DB) {
 	getAllCtrl := controllers.NewGetAllUsuariosController(getAllUseCase)
 	updateCtrl := controllers.NewUpdateUsuarioController(updateUseCase)
 	deleteCtrl := controllers.NewDeleteUsuarioController(deleteUseCase)
+	loginCtrl := controllers.LoginUsuarioController
 
 	usuarios := router.Group("/atlasApp/usuarios")
 	{
@@ -32,5 +34,6 @@ func SetupUsuarioRoutes(router *gin.Engine, db *sql.DB) {
 		usuarios.GET("/:id", getCtrl.Handle)
 		usuarios.PUT("/:id", updateCtrl.Handle)
 		usuarios.DELETE("/:id", deleteCtrl.Handle)
+		usuarios.POST("/login", loginCtrl)
 	}
 }

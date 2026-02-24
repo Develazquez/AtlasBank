@@ -9,6 +9,7 @@ type Usuario struct {
 	Email           string     `json:"email" binding:"required,email"`
 	Telefono        string     `json:"telefono" binding:"max=20"`
 	FechaNacimiento *time.Time `json:"fecha_nacimiento"`
+	Password        string     `json:"password"` 
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
 }
