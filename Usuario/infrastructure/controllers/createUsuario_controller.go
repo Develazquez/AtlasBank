@@ -7,6 +7,7 @@ import (
 
 	"banco-api/Usuario/application"
 	"banco-api/Usuario/domain/entities"
+	"time"
 )
 
 type CreateUsuarioController struct {
@@ -18,13 +19,34 @@ func NewCreateUsuarioController(usecase *application.CreateUsuarioUseCase) *Crea
 }
 
 func (ctrl *CreateUsuarioController) Handle(c *gin.Context) {
-	var usuario entities.Usuario
-	if err := c.ShouldBindJSON(&usuario); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos", "detalles": err.Error()})
-		return
-	}
+    var input struct {
+        Nombre          string `json:"nombre"`
+        Apellido        string `json:"apellido"`
+        Email           string `json:"email"`
+        Telefono        string `json:"telefono"`
+        FechaNacimiento string `json:"fecha_nacimiento"` 
+    }
 
-	id, err := ctrl.usecase.Execute(&usuario)
+    if err := c.ShouldBindJSON(&input); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos", "detalles": err.Error()})
+        return
+    }
+
+    fecha, err := time.Parse("2006-01-02", input.FechaNacimiento)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de fecha inválido. Use YYYY-MM-DD"})
+        return
+    }
+
+   
+    usuario := entities.Usuario{
+        Nombre:          input.Nombre,
+        Apellido:        input.Apellido,
+        Email:           input.Email,
+        FechaNacimiento: &fecha, 
+    }
+
+    id, err := ctrl.usecase.Execute(&usuario)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
