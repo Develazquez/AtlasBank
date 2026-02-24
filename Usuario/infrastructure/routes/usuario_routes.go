@@ -25,7 +25,7 @@ func SetupUsuarioRoutes(router *gin.Engine, db *sql.DB) {
 	updateCtrl := controllers.NewUpdateUsuarioController(updateUseCase)
 	deleteCtrl := controllers.NewDeleteUsuarioController(deleteUseCase)
 
-	usuarios := router.Group("/api/v1/usuarios")
+	usuarios := router.Group("/atlasApp/usuarios")
 	{
 		usuarios.POST("", createCtrl.Handle)
 		usuarios.GET("", getAllCtrl.Handle)
