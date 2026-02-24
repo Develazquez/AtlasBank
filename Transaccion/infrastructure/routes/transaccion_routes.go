@@ -25,7 +25,7 @@ func SetupTransaccionRoutes(router *gin.Engine, db *sql.DB) {
 	getTransactionsByCuentaCtrl := controllers.NewGetTransactionsByCuentaController(getTransactionsByCuentaUseCase)
 	deleteCtrl := controllers.NewDeleteTransaccionController(deleteUseCase)
 
-	transacciones := router.Group("/api/v1/transacciones")
+	transacciones := router.Group("/atlasApp/transacciones")
 	{
 		transacciones.POST("", createCtrl.Handle)
 		transacciones.GET("", getAllCtrl.Handle)
