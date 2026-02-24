@@ -27,7 +27,7 @@ func SetupCuentaRoutes(router *gin.Engine, db *sql.DB) {
 	updateCtrl := controllers.NewUpdateCuentaController(updateUseCase)
 	deleteCtrl := controllers.NewDeleteCuentaController(deleteUseCase)
 
-	cuentas := router.Group("/api/v1/cuentas")
+	cuentas := router.Group("/atlasApp/cuentas")
 	{
 		cuentas.POST("", createCtrl.Handle)
 		cuentas.GET("", getAllCtrl.Handle)
