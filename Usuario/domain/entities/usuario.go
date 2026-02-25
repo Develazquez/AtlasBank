@@ -21,7 +21,6 @@ type Usuario struct {
 	Rol             string     `json:"rol" gorm:"type:varchar(20);default:'CLIENTE'" binding:"oneof=ADMIN CAJERO CLIENTE"`
 	Activo          bool       `json:"activo" gorm:"default:true"`
 	UltimoLogin     *time.Time `json:"ultimo_login" gorm:"type:timestamptz"`
-	NombreCompleto  string     `json:"nombre_completo" gorm:"type:varchar(200);generatedColumn:STORED"`
 	MemberSince     time.Time  `json:"member_since" gorm:"type:date;default:CURRENT_DATE"`
 	CreatedAt       time.Time  `json:"created_at" gorm:"autoCreateTime:milli"`
 	UpdatedAt       time.Time  `json:"updated_at" gorm:"autoUpdateTime:milli"`
