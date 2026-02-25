@@ -40,7 +40,6 @@ const (
 	API      Canal = "API"
 )
 
-
 type Metadata map[string]interface{}
 
 func (m Metadata) Scan(value interface{}) error {
@@ -63,13 +62,18 @@ type Transaccion struct {
 	Comision        float64           `json:"comision" gorm:"type:numeric(18,2);default:0.00;not null"`
 	Concepto        string            `json:"concepto" gorm:"type:varchar(200)"`
 	Descripcion     string            `json:"descripcion" gorm:"type:text"`
-	Referencia      string            `json:"referencia" binding:"required" gorm:"type:varchar(100);unique;not null"`
+	Referencia      string            `json:"referencia" gorm:"type:varchar(100);unique;not null;default:uuid_generate_v4()"`
 	IPOrigen        string            `json:"ip_origen" gorm:"type:inet"`
 	Canal           Canal             `json:"canal" gorm:"type:varchar(30);default:'APP';not null"`
 	Metadata        Metadata          `json:"metadata" gorm:"type:jsonb"`
 	ProcesadoAt     *time.Time        `json:"procesado_at" gorm:"type:timestamptz"`
 	CreatedAt       time.Time         `json:"created_at" gorm:"autoCreateTime:milli"`
 	UpdatedAt       time.Time         `json:"updated_at" gorm:"autoUpdateTime:milli"`
+}
+
+// TableName especifica el nombre de la tabla en PostgreSQL
+func (Transaccion) TableName() string {
+	return "transacciones"
 }
 
 func (t *Transaccion) Validar() error {
