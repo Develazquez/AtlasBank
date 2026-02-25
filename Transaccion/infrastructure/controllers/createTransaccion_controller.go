@@ -79,10 +79,7 @@ func (ctrl *CreateTransaccionController) Handle(c *gin.Context) {
 		canal = "APP"
 	}
 
-	referencia := input.Referencia
-	if referencia == "" {
-		referencia = uuid.New().String()
-	}
+	referencia := uuid.New().String()
 
 	transaccion := &entities.Transaccion{
 		ID:              uuid.New(),
