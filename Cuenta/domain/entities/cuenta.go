@@ -43,7 +43,7 @@ type Cuenta struct {
 	BancoID               uuid.UUID    `json:"banco_id" gorm:"type:uuid;not null" binding:"required"`
 	NumeroCuenta          string       `json:"numero_cuenta" binding:"required,min=5" gorm:"type:varchar(20);unique;not null"`
 	NumeroTarjeta         string       `json:"numero_tarjeta" gorm:"type:varchar(16);unique"`
-	UltimosDigitosTarjeta string       `json:"ultimos_digitos_tarjeta" gorm:"type:varchar(4);generatedColumn:STORED"`
+	UltimosDigitosTarjeta string       `json:"ultimos_digitos_tarjeta" gorm:"type:varchar(4);generatedColumn:STORED;->"`
 	CLABE                 string       `json:"clabe" gorm:"type:varchar(18);unique"`
 	IBAN                  string       `json:"iban" gorm:"type:varchar(34);unique"`
 	Tipo                  TipoCuenta   `json:"tipo" gorm:"type:tipo_cuenta_enum;default:'AHORRO';not null"`
