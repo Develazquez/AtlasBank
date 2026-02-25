@@ -28,6 +28,10 @@ func (ctrl *CreateUsuarioController) Handle(c *gin.Context) {
 		Telefono        string `json:"telefono"`
 		FechaNacimiento string `json:"fecha_nacimiento"`
 		BancoID         string `json:"banco_id"`
+		TipoDocumento   string `json:"tipo_documento"`
+		NumeroDocumento string `json:"numero_documento"`
+		PasswordHash    string `json:"password_hash"`
+		Rol             string `json:"rol"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -47,6 +51,16 @@ func (ctrl *CreateUsuarioController) Handle(c *gin.Context) {
 		return
 	}
 
+	tipoDocumento := input.TipoDocumento
+	if tipoDocumento == "" {
+		tipoDocumento = "INE"
+	}
+
+	rol := input.Rol
+	if rol == "" {
+		rol = "CLIENTE"
+	}
+
 	usuario := entities.Usuario{
 		ID:              uuid.New(),
 		BancoID:         bancoID,
@@ -56,6 +70,11 @@ func (ctrl *CreateUsuarioController) Handle(c *gin.Context) {
 		Email:           input.Email,
 		Telefono:        input.Telefono,
 		FechaNacimiento: fecha,
+		TipoDocumento:   tipoDocumento,
+		NumeroDocumento: input.NumeroDocumento,
+		PasswordHash:    input.PasswordHash,
+		Rol:             rol,
+		MemberSince:     time.Now(),
 	}
 
 	id, err := ctrl.usecase.Execute(&usuario)

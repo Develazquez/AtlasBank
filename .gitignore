@@ -71,3 +71,5 @@ tmp/
 .AppleDouble
 .LSOverride
 scripts/
+certs/
+database_migration.sql
