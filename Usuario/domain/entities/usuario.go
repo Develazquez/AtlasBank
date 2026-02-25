@@ -17,7 +17,7 @@ type Usuario struct {
 	FechaNacimiento time.Time  `json:"fecha_nacimiento" binding:"required" gorm:"type:date;not null"`
 	TipoDocumento   string     `json:"tipo_documento" gorm:"type:varchar(20);default:'INE'" binding:"oneof=INE PASAPORTE CURP RFC"`
 	NumeroDocumento string     `json:"numero_documento" binding:"required" gorm:"type:varchar(50);unique;not null"`
-	PasswordHash    string     `json:"-" gorm:"type:text;not null"`
+	PasswordHash    string     `json:"password_hash" gorm:"type:text;not null"`
 	Rol             string     `json:"rol" gorm:"type:varchar(20);default:'CLIENTE'" binding:"oneof=ADMIN CAJERO CLIENTE"`
 	Activo          bool       `json:"activo" gorm:"default:true"`
 	UltimoLogin     *time.Time `json:"ultimo_login" gorm:"type:timestamptz"`
