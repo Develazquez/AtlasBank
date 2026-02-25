@@ -51,7 +51,8 @@ func (e ErrorUsuario) Error() string {
 }
 
 var (
-	ErrUsuarioNoEncontrado = ErrorUsuario{Mensaje: "El usuario no fue encontrado"}
-	ErrEmailYaExiste       = ErrorUsuario{Mensaje: "El email ya existe"}
-	ErrDocumentoYaExiste   = ErrorUsuario{Mensaje: "El número de documento ya existe"}
+	ErrUsuarioNoEncontrado   = ErrorUsuario{Mensaje: "El usuario no fue encontrado"}
+	ErrEmailYaExiste         = ErrorUsuario{Mensaje: "El email ya existe"}
+	ErrDocumentoYaExiste     = ErrorUsuario{Mensaje: "El número de documento ya existe"}
+	ErrCredencialesInvalidas = ErrorUsuario{Mensaje: "Credenciales inválidas"}
 )

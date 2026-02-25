@@ -17,21 +17,22 @@ func SetupUsuarioRoutes(router *gin.Engine, db *gorm.DB) {
 	getAllUseCase := application.NewGetAllUsuariosUseCase(usuarioRepo)
 	updateUseCase := application.NewUpdateUsuarioUseCase(usuarioRepo)
 	deleteUseCase := application.NewDeleteUsuarioUseCase(usuarioRepo)
+	loginUseCase := application.NewLoginUsuarioUseCase(usuarioRepo)
 
 	createCtrl := controllers.NewCreateUsuarioController(createUseCase)
 	getCtrl := controllers.NewGetUsuarioController(getUseCase)
 	getAllCtrl := controllers.NewGetAllUsuariosController(getAllUseCase)
 	updateCtrl := controllers.NewUpdateUsuarioController(updateUseCase)
 	deleteCtrl := controllers.NewDeleteUsuarioController(deleteUseCase)
-	loginCtrl := controllers.LoginUsuarioController
+	loginCtrl := controllers.NewLoginUsuarioController(loginUseCase)
 
 	usuarios := router.Group("/atlasApp/usuarios")
 	{
 		usuarios.POST("", createCtrl.Handle)
+		usuarios.POST("/login", loginCtrl.Handle)
 		usuarios.GET("", getAllCtrl.Handle)
 		usuarios.GET("/:id", getCtrl.Handle)
 		usuarios.PUT("/:id", updateCtrl.Handle)
 		usuarios.DELETE("/:id", deleteCtrl.Handle)
-		usuarios.POST("/login", loginCtrl)
 	}
 }

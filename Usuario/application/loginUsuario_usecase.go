@@ -5,13 +5,20 @@ import (
 	"banco-api/Usuario/domain/repository"
 )
 
-var UsuarioRepo repository.IUsuarioRepository
+type LoginUsuarioUseCase struct {
+	repo repository.IUsuarioRepository
+}
 
-func LoginUsuarioUsecase(email, password string) (*entities.Usuario, error) {
-	if UsuarioRepo == nil {
-		return nil, entities.ErrUsuarioNoEncontrado
+func NewLoginUsuarioUseCase(repo repository.IUsuarioRepository) *LoginUsuarioUseCase {
+	return &LoginUsuarioUseCase{repo: repo}
+}
+
+func (uc *LoginUsuarioUseCase) Execute(email, password string) (*entities.Usuario, error) {
+	if email == "" || password == "" {
+		return nil, entities.ErrCredencialesInvalidas
 	}
-	usuario, err := UsuarioRepo.LoginUsuario(email, password)
+
+	usuario, err := uc.repo.LoginUsuario(email, password)
 	if err != nil {
 		return nil, err
 	}
