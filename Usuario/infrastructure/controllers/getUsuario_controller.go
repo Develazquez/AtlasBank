@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"banco-api/Usuario/application"
 )
@@ -18,7 +18,7 @@ func NewGetUsuarioController(usecase *application.GetUsuarioUseCase) *GetUsuario
 }
 
 func (ctrl *GetUsuarioController) Handle(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return

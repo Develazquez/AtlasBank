@@ -1,16 +1,15 @@
 package routes
 
 import (
-	"database/sql"
-
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"banco-api/Transaccion/application"
 	"banco-api/Transaccion/infrastructure/controllers"
 	repo "banco-api/Transaccion/infrastructure/repository"
 )
 
-func SetupTransaccionRoutes(router *gin.Engine, db *sql.DB) {
+func SetupTransaccionRoutes(router *gin.Engine, db *gorm.DB) {
 	transaccionRepo := repo.NewTransaccionRepositoryPostgres(db)
 
 	createUseCase := application.NewCreateTransaccionUseCase(transaccionRepo, db)
@@ -19,7 +18,12 @@ func SetupTransaccionRoutes(router *gin.Engine, db *sql.DB) {
 	getTransactionsByCuentaUseCase := application.NewGetTransactionsByCuentaUseCase(transaccionRepo)
 	deleteUseCase := application.NewDeleteTransaccionUseCase(transaccionRepo)
 
-	createCtrl := controllers.NewCreateTransaccionController(createUseCase, db)
+	createSQLDB, err := db.DB()
+	if err != nil {
+		return
+	}
+
+	createCtrl := controllers.NewCreateTransaccionController(createUseCase, createSQLDB)
 	getCtrl := controllers.NewGetTransaccionController(getUseCase)
 	getAllCtrl := controllers.NewGetAllTransaccionesController(getAllUseCase)
 	getTransactionsByCuentaCtrl := controllers.NewGetTransactionsByCuentaController(getTransactionsByCuentaUseCase)

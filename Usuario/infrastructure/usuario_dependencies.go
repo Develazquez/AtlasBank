@@ -1,18 +1,17 @@
 package infrastructure
 
 import (
-	"database/sql"
-
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"banco-api/Usuario/infrastructure/routes"
 )
 
 type UsuarioDependencies struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewUsuarioDependencies(db *sql.DB) *UsuarioDependencies {
+func NewUsuarioDependencies(db *gorm.DB) *UsuarioDependencies {
 	return &UsuarioDependencies{
 		db: db,
 	}

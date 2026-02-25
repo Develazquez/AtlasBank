@@ -1,18 +1,16 @@
 package routes
 
 import (
-	"database/sql"
-
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"banco-api/Usuario/application"
 	"banco-api/Usuario/infrastructure/controllers"
 	repo "banco-api/Usuario/infrastructure/repository"
 )
 
-func SetupUsuarioRoutes(router *gin.Engine, db *sql.DB) {
+func SetupUsuarioRoutes(router *gin.Engine, db *gorm.DB) {
 	usuarioRepo := repo.NewUsuarioRepositoryPostgres(db)
-
 
 	createUseCase := application.NewCreateUsuarioUseCase(usuarioRepo)
 	getUseCase := application.NewGetUsuarioUseCase(usuarioRepo)

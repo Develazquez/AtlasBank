@@ -3,6 +3,8 @@ package application
 import (
 	"banco-api/Usuario/domain/entities"
 	"banco-api/Usuario/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 type CreateUsuarioUseCase struct {
@@ -13,14 +15,14 @@ func NewCreateUsuarioUseCase(repo repository.IUsuarioRepository) *CreateUsuarioU
 	return &CreateUsuarioUseCase{repo: repo}
 }
 
-func (uc *CreateUsuarioUseCase) Execute(usuario *entities.Usuario) (int, error) {
+func (uc *CreateUsuarioUseCase) Execute(usuario *entities.Usuario) (uuid.UUID, error) {
 	if err := usuario.Validar(); err != nil {
-		return 0, err
+		return uuid.Nil, err
 	}
 
 	existente, _ := uc.repo.GetByEmail(usuario.Email)
 	if existente != nil {
-		return 0, entities.ErrEmailYaExiste
+		return uuid.Nil, entities.ErrEmailYaExiste
 	}
 
 	return uc.repo.Create(usuario)

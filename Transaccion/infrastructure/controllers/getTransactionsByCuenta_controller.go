@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"banco-api/Transaccion/application"
 )
@@ -18,7 +18,7 @@ func NewGetTransactionsByCuentaController(usecase *application.GetTransactionsBy
 }
 
 func (ctrl *GetTransactionsByCuentaController) Handle(c *gin.Context) {
-	idCuenta, err := strconv.Atoi(c.Param("id_cuenta"))
+	idCuenta, err := uuid.Parse(c.Param("id_cuenta"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de cuenta inválido"})
 		return

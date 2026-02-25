@@ -1,18 +1,17 @@
 package infrastructure
 
 import (
-	"database/sql"
-
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"banco-api/Banco/infrastructure/routes"
 )
 
 type BancoDependencies struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewBancoDependencies(db *sql.DB) *BancoDependencies {
+func NewBancoDependencies(db *gorm.DB) *BancoDependencies {
 	return &BancoDependencies{
 		db: db,
 	}

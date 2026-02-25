@@ -18,7 +18,7 @@ func (uc *UpdateCuentaUseCase) Execute(cuenta *entities.Cuenta) error {
 		return err
 	}
 
-	existente, err := uc.repo.GetByID(cuenta.IDCuenta)
+	existente, err := uc.repo.GetByID(cuenta.ID)
 	if err != nil || existente == nil {
 		return entities.ErrCuentaNoEncontrada
 	}

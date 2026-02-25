@@ -1,11 +1,15 @@
 package repository
 
-import "banco-api/Transaccion/domain/entities"
+import (
+	"banco-api/Transaccion/domain/entities"
+
+	"github.com/google/uuid"
+)
 
 type ITransaccionRepository interface {
-	Create(transaccion *entities.Transaccion) (int, error)
-	GetByID(id int) (*entities.Transaccion, error)
+	Create(transaccion *entities.Transaccion) (uuid.UUID, error)
+	GetByID(id uuid.UUID) (*entities.Transaccion, error)
 	GetAll() ([]*entities.Transaccion, error)
-	Delete(id int) error
-	GetTransactionsByCuenta(idCuenta int) ([]*entities.Transaccion, error)
+	Delete(id uuid.UUID) error
+	GetTransactionsByCuenta(idCuenta uuid.UUID) ([]*entities.Transaccion, error)
 }

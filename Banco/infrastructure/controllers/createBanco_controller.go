@@ -17,7 +17,6 @@ func NewCreateBancoController(usecase *application.CreateBancoUseCase) *CreateBa
 	return &CreateBancoController{usecase: usecase}
 }
 
-
 func (ctrl *CreateBancoController) Handle(c *gin.Context) {
 	var banco entities.Banco
 	if err := c.ShouldBindJSON(&banco); err != nil {
@@ -25,7 +24,7 @@ func (ctrl *CreateBancoController) Handle(c *gin.Context) {
 		return
 	}
 
-	id, err := ctrl.usecase.Execute(&banco)
+	createdBanco, err := ctrl.usecase.Execute(&banco)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -33,6 +32,6 @@ func (ctrl *CreateBancoController) Handle(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"mensaje": "Banco creado exitosamente",
-		"id":      id,
+		"data":    createdBanco,
 	})
 }

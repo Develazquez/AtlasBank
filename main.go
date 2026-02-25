@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 
 	bancoinfra "banco-api/Banco/infrastructure"
 	cuentainfra "banco-api/Cuenta/infrastructure"
@@ -30,7 +29,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error conectando a la base de datos: %v", err)
 	}
-	defer db.Close()
 
 	router := gin.Default()
 
@@ -43,12 +41,10 @@ func main() {
 		})
 	})
 
-
 	bancoDeps := bancoinfra.NewBancoDependencies(db)
 	usuarioDeps := usuarioinfra.NewUsuarioDependencies(db)
 	cuentaDeps := cuentainfra.NewCuentaDependencies(db)
 	transaccionDeps := transaccioninfra.NewTransaccionDependencies(db)
-
 
 	bancoDeps.Setup(router)
 	usuarioDeps.Setup(router)
@@ -65,7 +61,6 @@ func main() {
 		Handler: router,
 	}
 
-
 	go func() {
 		log.Printf("Servidor iniciado en puerto %s", port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -73,13 +68,11 @@ func main() {
 		}
 	}()
 
-
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
 
 	log.Println("Recibida señal de terminación, cerrando servidor...")
-
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -87,12 +80,6 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("Error durante shutdown: %v", err)
 	}
-
-
-	bancoDeps.Shutdown()
-	usuarioDeps.Shutdown()
-	cuentaDeps.Shutdown()
-	transaccionDeps.Shutdown()
 
 	log.Println("Servidor cerrado correctamente")
 }

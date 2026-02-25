@@ -3,6 +3,8 @@ package application
 import (
 	"banco-api/Usuario/domain/entities"
 	"banco-api/Usuario/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 type DeleteUsuarioUseCase struct {
@@ -13,7 +15,7 @@ func NewDeleteUsuarioUseCase(repo repository.IUsuarioRepository) *DeleteUsuarioU
 	return &DeleteUsuarioUseCase{repo: repo}
 }
 
-func (uc *DeleteUsuarioUseCase) Execute(id int) error {
+func (uc *DeleteUsuarioUseCase) Execute(id uuid.UUID) error {
 	existente, err := uc.repo.GetByID(id)
 	if err != nil || existente == nil {
 		return entities.ErrUsuarioNoEncontrado

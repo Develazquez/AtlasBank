@@ -18,7 +18,7 @@ func (uc *UpdateUsuarioUseCase) Execute(usuario *entities.Usuario) error {
 		return err
 	}
 
-	existente, err := uc.repo.GetByID(usuario.IDUsuario)
+	existente, err := uc.repo.GetByID(usuario.ID)
 	if err != nil || existente == nil {
 		return entities.ErrUsuarioNoEncontrado
 	}

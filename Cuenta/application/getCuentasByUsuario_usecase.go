@@ -3,6 +3,8 @@ package application
 import (
 	"banco-api/Cuenta/domain/entities"
 	"banco-api/Cuenta/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 type GetCuentasByUsuarioUseCase struct {
@@ -13,6 +15,6 @@ func NewGetCuentasByUsuarioUseCase(repo repository.ICuentaRepository) *GetCuenta
 	return &GetCuentasByUsuarioUseCase{repo: repo}
 }
 
-func (uc *GetCuentasByUsuarioUseCase) Execute(idUsuario int) ([]*entities.Cuenta, error) {
+func (uc *GetCuentasByUsuarioUseCase) Execute(idUsuario uuid.UUID) ([]*entities.Cuenta, error) {
 	return uc.repo.GetCuentasByUsuario(idUsuario)
 }

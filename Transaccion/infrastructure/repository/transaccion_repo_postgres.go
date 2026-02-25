@@ -1,142 +1,58 @@
 package repository
 
 import (
-	"database/sql"
-	"time"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 
 	"banco-api/Transaccion/domain/entities"
 	"banco-api/Transaccion/domain/repository"
 )
 
 type TransaccionRepositoryPostgres struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewTransaccionRepositoryPostgres(db *sql.DB) repository.ITransaccionRepository {
+func NewTransaccionRepositoryPostgres(db *gorm.DB) repository.ITransaccionRepository {
 	return &TransaccionRepositoryPostgres{db: db}
 }
 
-func (r *TransaccionRepositoryPostgres) Create(transaccion *entities.Transaccion) (int, error) {
-	query := `
-		INSERT INTO transacciones (tipo_transaccion, monto, fecha, cuenta_origen, cuenta_destino, descripcion)
-		VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING id_transaccion
-	`
-
-	var id int
-	err := r.db.QueryRow(query,
-		transaccion.TipoTransaccion,
-		transaccion.Monto,
-		time.Now(),
-		transaccion.CuentaOrigen,
-		transaccion.CuentaDestino,
-		transaccion.Descripcion,
-	).Scan(&id)
-
-	if err != nil {
-		return 0, err
+func (r *TransaccionRepositoryPostgres) Create(transaccion *entities.Transaccion) (uuid.UUID, error) {
+	if transaccion.ID == uuid.Nil {
+		transaccion.ID = uuid.New()
 	}
-
-	return id, nil
+	result := r.db.Create(transaccion)
+	return transaccion.ID, result.Error
 }
 
-func (r *TransaccionRepositoryPostgres) GetByID(id int) (*entities.Transaccion, error) {
-	query := `
-		SELECT id_transaccion, tipo_transaccion, monto, fecha, cuenta_origen, cuenta_destino, descripcion
-		FROM transacciones WHERE id_transaccion = $1
-	`
-
+func (r *TransaccionRepositoryPostgres) GetByID(id uuid.UUID) (*entities.Transaccion, error) {
 	transaccion := &entities.Transaccion{}
-	err := r.db.QueryRow(query, id).Scan(
-		&transaccion.IDTransaccion,
-		&transaccion.TipoTransaccion,
-		&transaccion.Monto,
-		&transaccion.Fecha,
-		&transaccion.CuentaOrigen,
-		&transaccion.CuentaDestino,
-		&transaccion.Descripcion,
-	)
+	result := r.db.First(transaccion, "id = ?", id)
 
-	if err == sql.ErrNoRows {
+	if result.Error == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
-	if err != nil {
-		return nil, err
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
 	return transaccion, nil
 }
 
 func (r *TransaccionRepositoryPostgres) GetAll() ([]*entities.Transaccion, error) {
-	query := `
-		SELECT id_transaccion, tipo_transaccion, monto, fecha, cuenta_origen, cuenta_destino, descripcion
-		FROM transacciones ORDER BY id_transaccion DESC
-	`
-
-	rows, err := r.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	transacciones := make([]*entities.Transaccion, 0)
-	for rows.Next() {
-		transaccion := &entities.Transaccion{}
-		err := rows.Scan(
-			&transaccion.IDTransaccion,
-			&transaccion.TipoTransaccion,
-			&transaccion.Monto,
-			&transaccion.Fecha,
-			&transaccion.CuentaOrigen,
-			&transaccion.CuentaDestino,
-			&transaccion.Descripcion,
-		)
-		if err != nil {
-			return nil, err
-		}
-		transacciones = append(transacciones, transaccion)
-	}
-
-	return transacciones, nil
+	var transacciones []*entities.Transaccion
+	result := r.db.Order("created_at DESC").Find(&transacciones)
+	return transacciones, result.Error
 }
 
-func (r *TransaccionRepositoryPostgres) Delete(id int) error {
-	query := "DELETE FROM transacciones WHERE id_transaccion = $1"
-	_, err := r.db.Exec(query, id)
-	return err
+func (r *TransaccionRepositoryPostgres) Delete(id uuid.UUID) error {
+	result := r.db.Delete(&entities.Transaccion{}, "id = ?", id)
+	return result.Error
 }
 
-func (r *TransaccionRepositoryPostgres) GetTransactionsByCuenta(idCuenta int) ([]*entities.Transaccion, error) {
-	query := `
-		SELECT id_transaccion, tipo_transaccion, monto, fecha, cuenta_origen, cuenta_destino, descripcion
-		FROM transacciones 
-		WHERE cuenta_origen = $1 OR cuenta_destino = $1
-		ORDER BY fecha DESC
-	`
-
-	rows, err := r.db.Query(query, idCuenta)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	transacciones := make([]*entities.Transaccion, 0)
-	for rows.Next() {
-		transaccion := &entities.Transaccion{}
-		err := rows.Scan(
-			&transaccion.IDTransaccion,
-			&transaccion.TipoTransaccion,
-			&transaccion.Monto,
-			&transaccion.Fecha,
-			&transaccion.CuentaOrigen,
-			&transaccion.CuentaDestino,
-			&transaccion.Descripcion,
-		)
-		if err != nil {
-			return nil, err
-		}
-		transacciones = append(transacciones, transaccion)
-	}
-
-	return transacciones, nil
+func (r *TransaccionRepositoryPostgres) GetTransactionsByCuenta(idCuenta uuid.UUID) ([]*entities.Transaccion, error) {
+	var transacciones []*entities.Transaccion
+	result := r.db.Where("cuenta_origen_id = ? OR cuenta_destino_id = ?", idCuenta, idCuenta).
+		Order("created_at DESC").
+		Find(&transacciones)
+	return transacciones, result.Error
 }

@@ -3,6 +3,8 @@ package application
 import (
 	"banco-api/Transaccion/domain/entities"
 	"banco-api/Transaccion/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 type DeleteTransaccionUseCase struct {
@@ -13,7 +15,7 @@ func NewDeleteTransaccionUseCase(repo repository.ITransaccionRepository) *Delete
 	return &DeleteTransaccionUseCase{repo: repo}
 }
 
-func (uc *DeleteTransaccionUseCase) Execute(id int) error {
+func (uc *DeleteTransaccionUseCase) Execute(id uuid.UUID) error {
 	existente, err := uc.repo.GetByID(id)
 	if err != nil || existente == nil {
 		return entities.ErrTransaccionNoEncontrada

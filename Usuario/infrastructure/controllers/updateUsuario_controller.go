@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"banco-api/Usuario/application"
 	"banco-api/Usuario/domain/entities"
@@ -21,14 +21,15 @@ func NewUpdateUsuarioController(usecase *application.UpdateUsuarioUseCase) *Upda
 
 type UpdateUsuarioInput struct {
 	Nombre          string `json:"nombre"`
-	Apellido        string `json:"apellido"`
+	ApellidoPaterno string `json:"apellido_paterno"`
+	ApellidoMaterno string `json:"apellido_materno"`
 	Email           string `json:"email"`
 	Telefono        string `json:"telefono"`
-	FechaNacimiento string `json:"fecha_nacimiento"` 
+	FechaNacimiento string `json:"fecha_nacimiento"`
 }
 
 func (ctrl *UpdateUsuarioController) Handle(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
@@ -50,12 +51,13 @@ func (ctrl *UpdateUsuarioController) Handle(c *gin.Context) {
 	}
 
 	usuario := entities.Usuario{
-		IDUsuario:       id,
+		ID:              id,
 		Nombre:          input.Nombre,
-		Apellido:        input.Apellido,
+		ApellidoPaterno: input.ApellidoPaterno,
+		ApellidoMaterno: input.ApellidoMaterno,
 		Email:           input.Email,
 		Telefono:        input.Telefono,
-		FechaNacimiento: &fecha, 
+		FechaNacimiento: fecha,
 	}
 
 	if err := ctrl.usecase.Execute(&usuario); err != nil {

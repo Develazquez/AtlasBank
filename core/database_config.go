@@ -1,11 +1,11 @@
 package core
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
 
-	_ "github.com/lib/pq" 
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type DatabaseConfig struct {
@@ -15,8 +15,8 @@ type DatabaseConfig struct {
 	Password string
 	DBName   string
 	SSLMode  string
-	SSLCert  string 
-	DSN      string 
+	SSLCert  string
+	DSN      string
 }
 
 func GetDatabaseConfig() DatabaseConfig {
@@ -27,12 +27,12 @@ func GetDatabaseConfig() DatabaseConfig {
 		Password: os.Getenv("DB_PASSWORD"),
 		DBName:   os.Getenv("DB_NAME"),
 		SSLMode:  os.Getenv("DB_SSLMODE"),
-		SSLCert:  os.Getenv("DB_CA_CERT"), 
+		SSLCert:  os.Getenv("DB_CA_CERT"),
 		DSN:      os.Getenv("DB_DSN"),
 	}
 }
 
-func CreateDBConnection(config DatabaseConfig) (*sql.DB, error) {
+func CreateDBConnection(config DatabaseConfig) (*gorm.DB, error) {
 	var dsn string
 	if config.DSN != "" {
 		dsn = config.DSN
@@ -41,7 +41,7 @@ func CreateDBConnection(config DatabaseConfig) (*sql.DB, error) {
 			config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode, config.SSLCert)
 	}
 
-	db, err := sql.Open("postgres", dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("error creando conexión: %w", err)
 	}
@@ -49,13 +49,18 @@ func CreateDBConnection(config DatabaseConfig) (*sql.DB, error) {
 	return db, nil
 }
 
-func NewDatabaseConnection(config DatabaseConfig) (*sql.DB, error) {
+func NewDatabaseConnection(config DatabaseConfig) (*gorm.DB, error) {
 	db, err := CreateDBConnection(config)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := db.Ping(); err != nil {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("error obteniendo BD: %w", err)
+	}
+
+	if err := sqlDB.Ping(); err != nil {
 		return nil, fmt.Errorf("error verificando conexión (Ping): %w", err)
 	}
 

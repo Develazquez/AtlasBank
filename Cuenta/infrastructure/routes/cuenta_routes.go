@@ -1,16 +1,15 @@
 package routes
 
 import (
-	"database/sql"
-
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"banco-api/Cuenta/application"
 	"banco-api/Cuenta/infrastructure/controllers"
 	repo "banco-api/Cuenta/infrastructure/repository"
 )
 
-func SetupCuentaRoutes(router *gin.Engine, db *sql.DB) {
+func SetupCuentaRoutes(router *gin.Engine, db *gorm.DB) {
 	cuentaRepo := repo.NewCuentaRepositoryPostgres(db)
 
 	createUseCase := application.NewCreateCuentaUseCase(cuentaRepo)

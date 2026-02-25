@@ -1,22 +1,23 @@
 package core
 
 import (
-	"database/sql"
 	"time"
+	"gorm.io/gorm"
 )
 
 type ConnPostgres struct {
-	DB *sql.DB
+	DB *gorm.DB
 }
 
-func ConfigureDBPool(db *sql.DB) {
-	db.SetMaxOpenConns(50)
-	db.SetMaxIdleConns(30)
-	db.SetConnMaxLifetime(3 * time.Minute)
-	db.SetConnMaxIdleTime(1 * time.Minute)
+func ConfigureDBPool(db *gorm.DB) {
+	sqlDB, _ := db.DB()
+	sqlDB.SetMaxOpenConns(50)
+	sqlDB.SetMaxIdleConns(30)
+	sqlDB.SetConnMaxLifetime(3 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(1 * time.Minute)
 }
 
-func GetDBPool(config DatabaseConfig) (*sql.DB, error) {
+func GetDBPool(config DatabaseConfig) (*gorm.DB, error) {
 	db, err := NewDatabaseConnection(config)
 	if err != nil {
 		return nil, err
@@ -27,27 +28,10 @@ func GetDBPool(config DatabaseConfig) (*sql.DB, error) {
 }
 
 func (conn *ConnPostgres) ExecutePreparedQuery(query string, args ...interface{}) error {
-	stmt, err := conn.DB.Prepare(query)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(args...)
-	return err
+	return conn.DB.Exec(query, args...).Error
 }
 
-func (conn *ConnPostgres) FetchRows(query string, args ...interface{}) (*sql.Rows, error) {
-	stmt, err := conn.DB.Prepare(query)
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(args...)
-	if err != nil {
-		return nil, err
-	}
-
-	return rows, nil
+func (conn *ConnPostgres) FetchRows(query string, args ...interface{}) interface{} {
+	return conn.DB.Raw(query, args...)
 }
+

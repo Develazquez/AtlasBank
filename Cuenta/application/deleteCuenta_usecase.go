@@ -3,6 +3,8 @@ package application
 import (
 	"banco-api/Cuenta/domain/entities"
 	"banco-api/Cuenta/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 type DeleteCuentaUseCase struct {
@@ -13,7 +15,7 @@ func NewDeleteCuentaUseCase(repo repository.ICuentaRepository) *DeleteCuentaUseC
 	return &DeleteCuentaUseCase{repo: repo}
 }
 
-func (uc *DeleteCuentaUseCase) Execute(id int) error {
+func (uc *DeleteCuentaUseCase) Execute(id uuid.UUID) error {
 	existente, err := uc.repo.GetByID(id)
 	if err != nil || existente == nil {
 		return entities.ErrCuentaNoEncontrada

@@ -1,18 +1,17 @@
 package infrastructure
 
 import (
-	"database/sql"
-
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"banco-api/Cuenta/infrastructure/routes"
 )
 
 type CuentaDependencies struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewCuentaDependencies(db *sql.DB) *CuentaDependencies {
+func NewCuentaDependencies(db *gorm.DB) *CuentaDependencies {
 	return &CuentaDependencies{
 		db: db,
 	}

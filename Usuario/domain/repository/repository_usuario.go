@@ -1,13 +1,17 @@
 package repository
 
-import "banco-api/Usuario/domain/entities"
+import (
+	"banco-api/Usuario/domain/entities"
+
+	"github.com/google/uuid"
+)
 
 type IUsuarioRepository interface {
-	Create(usuario *entities.Usuario) (int, error)
-	GetByID(id int) (*entities.Usuario, error)
+	Create(usuario *entities.Usuario) (uuid.UUID, error)
+	GetByID(id uuid.UUID) (*entities.Usuario, error)
 	GetAll() ([]*entities.Usuario, error)
 	Update(usuario *entities.Usuario) error
-	Delete(id int) error
+	Delete(id uuid.UUID) error
 	GetByEmail(email string) (*entities.Usuario, error)
 	LoginUsuario(email, password string) (*entities.Usuario, error)
 }
