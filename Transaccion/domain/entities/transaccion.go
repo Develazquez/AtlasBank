@@ -63,7 +63,7 @@ type Transaccion struct {
 	Concepto        string            `json:"concepto" gorm:"type:varchar(200)"`
 	Descripcion     string            `json:"descripcion" gorm:"type:text"`
 	Referencia      string            `json:"referencia" gorm:"type:varchar(100);unique;not null;default:uuid_generate_v4()"`
-	IPOrigen        string            `json:"ip_origen" gorm:"type:inet"`
+	IPOrigen 		*string 		`json:"ip_origen" gorm:"type:inet"`
 	Canal           Canal             `json:"canal" gorm:"type:varchar(30);default:'APP';not null"`
 	Metadata        Metadata          `json:"metadata" gorm:"type:jsonb"`
 	ProcesadoAt     *time.Time        `json:"procesado_at" gorm:"type:timestamptz"`
@@ -71,7 +71,6 @@ type Transaccion struct {
 	UpdatedAt       time.Time         `json:"updated_at" gorm:"autoUpdateTime:milli"`
 }
 
-// TableName especifica el nombre de la tabla en PostgreSQL
 func (Transaccion) TableName() string {
 	return "transacciones"
 }

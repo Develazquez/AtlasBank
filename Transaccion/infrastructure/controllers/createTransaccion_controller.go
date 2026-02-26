@@ -56,18 +56,19 @@ func (ctrl *CreateTransaccionController) Handle(c *gin.Context) {
 	}
 
 	transaccion := &entities.Transaccion{
-		ID:              uuid.New(),
-		CuentaOrigenID:  cuentaOrigenID,
-		CuentaDestinoID: cuentaDestinoID,
-		Tipo:            entities.TRANSFERENCIA_INTERNA, 
-		Estado:          entities.COMPLETADA,
-		Monto:           input.Monto,
-		Moneda:          "MXN",
-		Concepto:        input.Concepto,
-		Referencia:      uuid.New().String(),
-		Canal:           entities.APP,
-		CreatedAt:       time.Now(),
-	}
+    ID:              uuid.New(),
+    CuentaOrigenID:  cuentaOrigenID,
+    CuentaDestinoID: cuentaDestinoID,
+    Tipo:            entities.TRANSFERENCIA_INTERNA,
+    Estado:          entities.COMPLETADA,
+    Monto:           input.Monto,
+    Moneda:          "MXN",
+    Concepto:        input.Concepto,
+    Referencia:      uuid.New().String(),
+    Canal:           entities.APP,
+    CreatedAt:       time.Now(),
+    // IPOrigen removido — no lo asignes si viene vacío
+}
 
 	transaccionJSON, _ := json.MarshalIndent(transaccion, "", "  ")
 	fmt.Printf("Transacción creada: %s\n", string(transaccionJSON))
