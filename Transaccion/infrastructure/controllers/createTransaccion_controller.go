@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"net/http"
 	"time"
+	"fmt"
+	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -98,8 +100,10 @@ func (ctrl *CreateTransaccionController) Handle(c *gin.Context) {
 		Metadata:        input.Metadata,
 		CreatedAt:       time.Now(),
 	}
-
+	transaccionJSON, _ := json.MarshalIndent(transaccion, "", "  ")
+	fmt.Printf("Transacción creada: %s\n", string(transaccionJSON))
 	id, err := ctrl.usecase.Execute(transaccion)
+	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
