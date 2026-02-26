@@ -35,8 +35,6 @@ func (ctrl *LoginUsuarioController) Handle(c *gin.Context) {
 	}
 	dashboardJSON, _ := json.MarshalIndent(dashboard, "", "  ")
 	fmt.Printf("Dashboard data: %s\n", string(dashboardJSON))
-	c.JSON(http.StatusOK, gin.H{
-		"mensaje": "Login exitoso",
-		"usuario": dashboard,
-	})
+
+	c.JSON(http.StatusOK, dashboard)
 }
