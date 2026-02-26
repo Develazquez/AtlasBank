@@ -105,6 +105,7 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 	sqlQuery := `
 		SELECT 
 			id,
+			cuenta_id,
 			name,
 			wallet,
 			card,

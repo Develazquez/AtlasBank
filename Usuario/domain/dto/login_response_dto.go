@@ -21,7 +21,8 @@ type RecentlyInfDTO struct {
 
 
 type UserDashboardDTO struct {
-	ID          string          `json:"id"`           
+	ID          string          `json:"id"`  
+	CuentaID    string          `json:"cuenta_id"`         
 	Name        string          `json:"name"`         
 	Wallet      float64         `json:"wallet"`       
 	Card        CardDTO         `json:"card"`         
