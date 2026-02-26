@@ -139,7 +139,7 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 			b.codigo_swift as codigo_swift,
 			b.nombre as banco_nombre
 		FROM usuarios u
-		JOIN cuentas c ON c.usuario_id = u.id
+		JOIN cuenta c ON c.usuario_id = u.id
 		JOIN bancos b ON b.id = u.banco_id
 		WHERE u.id = $1 AND u.activo = true AND c.estado = 'ACTIVA'
 		LIMIT 1
