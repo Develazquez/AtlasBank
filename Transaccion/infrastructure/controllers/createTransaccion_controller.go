@@ -25,19 +25,10 @@ func NewCreateTransaccionController(usecase *application.CreateTransaccionUseCas
 
 func (ctrl *CreateTransaccionController) Handle(c *gin.Context) {
 	var input struct {
-		CuentaOrigenID  *string                `json:"cuenta_origen_id"`
-		CuentaDestinoID *string                `json:"cuenta_destino_id"`
-		Tipo            string                 `json:"tipo" binding:"required"`
-		Estado          string                 `json:"estado"`
-		Monto           float64                `json:"monto" binding:"required,gt=0"`
-		Moneda          string                 `json:"moneda"`
-		Comision        float64                `json:"comision"`
-		Concepto        string                 `json:"concepto"`
-		Descripcion     string                 `json:"descripcion"`
-		Referencia      string                 `json:"referencia"`
-		IPOrigen        string                 `json:"ip_origen"`
-		Canal           string                 `json:"canal"`
-		Metadata        map[string]interface{} `json:"metadata"`
+		CuentaOrigenID  *string `json:"cuenta_origen_id"`
+		CuentaDestinoID *string `json:"cuenta_destino_id"`
+		Monto           float64 `json:"monto" binding:"required,gt=0"`
+		Concepto        string  `json:"concepto"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -45,7 +36,6 @@ func (ctrl *CreateTransaccionController) Handle(c *gin.Context) {
 		return
 	}
 
-	// Parsear UUIDs opcionales
 	var cuentaOrigenID, cuentaDestinoID *uuid.UUID
 	if input.CuentaOrigenID != nil {
 		id, err := uuid.Parse(*input.CuentaOrigenID)
@@ -65,45 +55,24 @@ func (ctrl *CreateTransaccionController) Handle(c *gin.Context) {
 		cuentaDestinoID = &id
 	}
 
-	// Asignar valores por defecto
-	estado := input.Estado
-	if estado == "" {
-		estado = "PENDIENTE"
-	}
-
-	moneda := input.Moneda
-	if moneda == "" {
-		moneda = "MXN"
-	}
-
-	canal := input.Canal
-	if canal == "" {
-		canal = "APP"
-	}
-
-	referencia := uuid.New().String()
-
 	transaccion := &entities.Transaccion{
 		ID:              uuid.New(),
 		CuentaOrigenID:  cuentaOrigenID,
 		CuentaDestinoID: cuentaDestinoID,
-		Tipo:            entities.TipoTransaccion(input.Tipo),
-		Estado:          entities.EstadoTransaccion(estado),
+		Tipo:            entities.TRANSFERENCIA_INTERNA, 
+		Estado:          entities.COMPLETADA,
 		Monto:           input.Monto,
-		Moneda:          moneda,
-		Comision:        input.Comision,
+		Moneda:          "MXN",
 		Concepto:        input.Concepto,
-		Descripcion:     input.Descripcion,
-		Referencia:      referencia,
-		IPOrigen:        input.IPOrigen,
-		Canal:           entities.Canal(canal),
-		Metadata:        input.Metadata,
+		Referencia:      uuid.New().String(),
+		Canal:           entities.APP,
 		CreatedAt:       time.Now(),
 	}
+
 	transaccionJSON, _ := json.MarshalIndent(transaccion, "", "  ")
 	fmt.Printf("Transacción creada: %s\n", string(transaccionJSON))
+
 	id, err := ctrl.usecase.Execute(transaccion)
-	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
