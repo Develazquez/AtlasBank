@@ -6,17 +6,19 @@ import (
 
 	"banco-api/Transaccion/application"
 	"banco-api/Transaccion/infrastructure/controllers"
-	repo "banco-api/Transaccion/infrastructure/repository"
+	transaccionRepo "banco-api/Transaccion/infrastructure/repository"
+	cuentaRepo "banco-api/Cuenta/infrastructure/repository" 
 )
 
 func SetupTransaccionRoutes(router *gin.Engine, db *gorm.DB) {
-	transaccionRepo := repo.NewTransaccionRepositoryPostgres(db)
+	transRepo := transaccionRepo.NewTransaccionRepositoryPostgres(db)
+	cuentRepo := cuentaRepo.NewCuentaRepositoryPostgres(db) 
 
-	createUseCase := application.NewCreateTransaccionUseCase(transaccionRepo, db)
-	getUseCase := application.NewGetTransaccionUseCase(transaccionRepo)
-	getAllUseCase := application.NewGetAllTransaccionesUseCase(transaccionRepo)
-	getTransactionsByCuentaUseCase := application.NewGetTransactionsByCuentaUseCase(transaccionRepo)
-	deleteUseCase := application.NewDeleteTransaccionUseCase(transaccionRepo)
+	createUseCase := application.NewCreateTransaccionUseCase(transRepo, cuentRepo, db) 
+	getUseCase := application.NewGetTransaccionUseCase(transRepo)
+	getAllUseCase := application.NewGetAllTransaccionesUseCase(transRepo)
+	getTransactionsByCuentaUseCase := application.NewGetTransactionsByCuentaUseCase(transRepo)
+	deleteUseCase := application.NewDeleteTransaccionUseCase(transRepo)
 
 	createSQLDB, err := db.DB()
 	if err != nil {
