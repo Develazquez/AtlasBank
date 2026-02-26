@@ -16,4 +16,5 @@ type IUsuarioRepository interface {
 	GetByEmail(email string) (*entities.Usuario, error)
 	LoginUsuario(email, password string) (*entities.Usuario, error)
 	LoginUsuarioWithDashboard(email, password string) (*dto.UserDashboardDTO, error)
+	GetAllWithCuentaID() ([]*dto.UsuarioListDTO, error)
 }

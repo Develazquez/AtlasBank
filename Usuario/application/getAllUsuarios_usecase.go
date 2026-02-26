@@ -1,7 +1,7 @@
 package application
 
 import (
-	"banco-api/Usuario/domain/entities"
+	"banco-api/Usuario/domain/dto"
 	"banco-api/Usuario/domain/repository"
 )
 
@@ -13,6 +13,6 @@ func NewGetAllUsuariosUseCase(repo repository.IUsuarioRepository) *GetAllUsuario
 	return &GetAllUsuariosUseCase{repo: repo}
 }
 
-func (uc *GetAllUsuariosUseCase) Execute() ([]*entities.Usuario, error) {
-	return uc.repo.GetAll()
+func (uc *GetAllUsuariosUseCase) Execute() ([]*dto.UsuarioListDTO, error) {
+	return uc.repo.GetAllWithCuentaID()
 }

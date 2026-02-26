@@ -126,3 +126,20 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 
 	return &dashboard, nil
 }
+
+func (r *UsuarioRepositoryPostgres) GetAllWithCuentaID() ([]*dto.UsuarioListDTO, error) {
+    var usuarios []*dto.UsuarioListDTO
+    sqlQuery := `
+        SELECT 
+            u.id::text,
+            c.id::text AS cuenta_id,
+            u.nombre,
+            u.apellido_paterno,
+            u.email
+        FROM usuarios u
+        LEFT JOIN cuenta c ON c.usuario_id = u.id AND c.estado = 'ACTIVA'
+        ORDER BY u.created_at DESC
+    `
+    result := r.db.Raw(sqlQuery).Scan(&usuarios)
+    return usuarios, result.Error
+}
