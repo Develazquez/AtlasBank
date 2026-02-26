@@ -80,13 +80,8 @@ func (ctrl *CreateTransaccionController) Handle(c *gin.Context) {
 	}
 
 	if transaccion.CuentaOrigenID != nil && transaccion.CuentaDestinoID != nil {
-		go websocket.NotifyTransfer(
-			id,
-			transaccion.CuentaOrigenID.String(),
-			transaccion.CuentaDestinoID.String(),
-			transaccion.Monto,
-			transaccion.Moneda,
-		)
+		fmt.Printf("estoy aqui")
+		go websocket.NotifyTransfer(true)
 	}
 
 	c.JSON(http.StatusCreated, gin.H{

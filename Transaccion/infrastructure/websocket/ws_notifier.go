@@ -6,30 +6,15 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
-
-	"github.com/google/uuid"
 )
 
 type TransferPayload struct {
-	TransferID  string  `json:"transferId"`
-	FromAccount string  `json:"fromAccount"`
-	ToAccount   string  `json:"toAccount"`
-	Amount      float64 `json:"amount"`
-	Currency    string  `json:"currency"`
-	Status      string  `json:"status"`
-	Timestamp   string  `json:"timestamp"`
+	Success  bool  `json:"success"`
 }
 
-func NotifyTransfer(transactionID uuid.UUID, fromAccount, toAccount string, amount float64, currency string) error {
+func NotifyTransfer(success bool) error {
 	payload := TransferPayload{
-		TransferID:  transactionID.String(),
-		FromAccount: fromAccount,
-		ToAccount:   toAccount,
-		Amount:      amount,
-		Currency:    currency,
-		Status:      "success",
-		Timestamp:   time.Now().Format("2006-01-02 15:04:05"),
+		Success : success,
 	}
 
 	body, err := json.Marshal(payload)
@@ -41,13 +26,14 @@ func NotifyTransfer(transactionID uuid.UUID, fromAccount, toAccount string, amou
 	wsServerURL := os.Getenv("WS_SERVER_URL")
 	fmt.Printf("📡 Notificando a: %s/transfer/notify\n", wsServerURL)
 	fmt.Printf("📦 Payload: %s\n", string(body))
-
+ 
 	resp, err := http.Post(
 		fmt.Sprintf("%s/transfer/notify", wsServerURL),
 		"application/json",
 		bytes.NewBuffer(body),
 	)
 	if err != nil {
+
 		fmt.Printf("❌ Error notificando al WS server: %s\n", err.Error())
 		return err
 	}
