@@ -87,7 +87,6 @@ func (r *UsuarioRepositoryPostgres) LoginUsuario(email, password string) (*entit
 }
 
 func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password string) (*dto.UserDashboardDTO, error) {
-	// Primero validar credenciales del usuario
 	usuario := &entities.Usuario{}
 	if err := r.db.First(usuario, "email = ? AND activo = ?", email, true).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -96,7 +95,6 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 		return nil, err
 	}
 
-	// Validar contraseña (comparación directa si se almacena en texto plano)
 	if usuario.PasswordHash != password {
 		return nil, entities.ErrCredencialesInvalidas
 	}
@@ -144,8 +142,8 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 			"b.nombre as banco_nombre",
 		).
 		Table("usuarios u").
-		Joins("JOIN cuenta c ON c.usuario_id = u.id").
-		Joins("JOIN banco b ON b.id = u.banco_id").
+		Joins("JOIN cuentas c ON c.usuario_id = u.id").
+		Joins("JOIN bancos b ON b.id = u.banco_id").
 		Where("u.id = ? AND u.activo = ? AND c.estado = ?", usuario.ID, true, "ACTIVA").
 		First(&result)
 
