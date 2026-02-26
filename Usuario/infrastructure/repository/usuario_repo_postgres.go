@@ -115,37 +115,37 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 		NumeroCuenta          string
 		CLABE                 string
 		IBAN                  string
-		BancoID               uuid.UUID
 		CodigoSwift           string
 		BancoNombre           string
 	}
 
-	// Query que hace JOIN entre usuarios, cuenta y banco
-	query := r.db.
-		Select(
-			"u.id as usuario_id",
-			"u.nombre as nombre",
-			"u.apellido_paterno as apellido_paterno",
-			"u.apellido_materno as apellido_materno",
-			"u.email as email",
-			"c.id as cuenta_id",
-			"c.saldo as saldo",
-			"c.tipo_tarjeta as tipo_tarjeta",
-			"c.ultimos_digitos_tarjeta as ultimos_digitos_tarjeta",
-			"c.fecha_expiracion as fecha_expiracion",
-			"c.nombre_tarjeta as nombre_tarjeta",
-			"c.numero_cuenta as numero_cuenta",
-			"c.clabe as clabe",
-			"c.iban as iban",
-			"b.id as banco_id",
-			"b.codigo_swift as codigo_swift",
-			"b.nombre as banco_nombre",
-		).
-		Table("usuarios u").
-		Joins("JOIN cuentas c ON c.usuario_id = u.id").
-		Joins("JOIN bancos b ON b.id = u.banco_id").
-		Where("u.id = ? AND u.activo = ? AND c.estado = ?", usuario.ID, true, "ACTIVA").
-		First(&result)
+	// Query usando Raw SQL para evitar problemas con alias
+	sqlQuery := `
+		SELECT 
+			u.id as usuario_id,
+			u.nombre as nombre,
+			u.apellido_paterno as apellido_paterno,
+			u.apellido_materno as apellido_materno,
+			u.email as email,
+			c.id as cuenta_id,
+			c.saldo as saldo,
+			c.tipo_tarjeta as tipo_tarjeta,
+			c.ultimos_digitos_tarjeta as ultimos_digitos_tarjeta,
+			c.fecha_expiracion as fecha_expiracion,
+			c.nombre_tarjeta as nombre_tarjeta,
+			c.numero_cuenta as numero_cuenta,
+			c.clabe as clabe,
+			c.iban as iban,
+			b.codigo_swift as codigo_swift,
+			b.nombre as banco_nombre
+		FROM usuarios u
+		JOIN cuentas c ON c.usuario_id = u.id
+		JOIN bancos b ON b.id = u.banco_id
+		WHERE u.id = $1 AND u.activo = true AND c.estado = 'ACTIVA'
+		LIMIT 1
+	`
+
+	query := r.db.Raw(sqlQuery, usuario.ID).Scan(&result)
 
 	if query.Error != nil {
 		if query.Error == gorm.ErrRecordNotFound {
