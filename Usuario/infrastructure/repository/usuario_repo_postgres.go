@@ -87,6 +87,20 @@ func (r *UsuarioRepositoryPostgres) LoginUsuario(email, password string) (*entit
 }
 
 func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password string) (*dto.UserDashboardDTO, error) {
+	// Primero validar credenciales del usuario
+	usuario := &entities.Usuario{}
+	if err := r.db.First(usuario, "email = ? AND activo = ?", email, true).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, entities.ErrUsuarioNoEncontrado
+		}
+		return nil, err
+	}
+
+	// Validar contraseña (comparación directa si se almacena en texto plano)
+	if usuario.PasswordHash != password {
+		return nil, entities.ErrCredencialesInvalidas
+	}
+
 	// Estructura auxiliar para hacer el JOIN
 	var result struct {
 		UsuarioID             uuid.UUID
@@ -94,7 +108,6 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 		ApellidoPaterno       string
 		ApellidoMaterno       string
 		Email                 string
-		PasswordHash          string
 		CuentaID              uuid.UUID
 		Saldo                 float64
 		TipoTarjeta           string
@@ -117,7 +130,6 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 			"u.apellido_paterno as apellido_paterno",
 			"u.apellido_materno as apellido_materno",
 			"u.email as email",
-			"u.password_hash as password_hash",
 			"c.id as cuenta_id",
 			"c.saldo as saldo",
 			"c.tipo_tarjeta as tipo_tarjeta",
@@ -134,19 +146,14 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 		Table("usuarios u").
 		Joins("JOIN cuenta c ON c.usuario_id = u.id").
 		Joins("JOIN banco b ON b.id = u.banco_id").
-		Where("u.email = ? AND u.activo = ? AND c.estado = ?", email, true, "ACTIVA").
+		Where("u.id = ? AND u.activo = ? AND c.estado = ?", usuario.ID, true, "ACTIVA").
 		First(&result)
 
-	if query.Error == gorm.ErrRecordNotFound {
-		return nil, entities.ErrUsuarioNoEncontrado
-	}
 	if query.Error != nil {
+		if query.Error == gorm.ErrRecordNotFound {
+			return nil, entities.ErrUsuarioNoEncontrado
+		}
 		return nil, query.Error
-	}
-
-	// Validar contraseña
-	if result.PasswordHash != password {
-		return nil, entities.ErrUsuarioNoEncontrado
 	}
 
 	// Construir DTO con el nombre completo
