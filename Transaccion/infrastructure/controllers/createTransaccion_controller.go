@@ -2,16 +2,17 @@ package controllers
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
-	"fmt"
-	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
 	"banco-api/Transaccion/application"
 	"banco-api/Transaccion/domain/entities"
+	"banco-api/Transaccion/infrastructure/websocket"
 )
 
 type CreateTransaccionController struct {
@@ -56,19 +57,18 @@ func (ctrl *CreateTransaccionController) Handle(c *gin.Context) {
 	}
 
 	transaccion := &entities.Transaccion{
-    ID:              uuid.New(),
-    CuentaOrigenID:  cuentaOrigenID,
-    CuentaDestinoID: cuentaDestinoID,
-    Tipo:            entities.TRANSFERENCIA_INTERNA,
-    Estado:          entities.COMPLETADA,
-    Monto:           input.Monto,
-    Moneda:          "MXN",
-    Concepto:        input.Concepto,
-    Referencia:      uuid.New().String(),
-    Canal:           entities.APP,
-    CreatedAt:       time.Now(),
-    // IPOrigen removido — no lo asignes si viene vacío
-}
+		ID:              uuid.New(),
+		CuentaOrigenID:  cuentaOrigenID,
+		CuentaDestinoID: cuentaDestinoID,
+		Tipo:            entities.TRANSFERENCIA_INTERNA,
+		Estado:          entities.COMPLETADA,
+		Monto:           input.Monto,
+		Moneda:          "MXN",
+		Concepto:        input.Concepto,
+		Referencia:      uuid.New().String(),
+		Canal:           entities.APP,
+		CreatedAt:       time.Now(),
+	}
 
 	transaccionJSON, _ := json.MarshalIndent(transaccion, "", "  ")
 	fmt.Printf("Transacción creada: %s\n", string(transaccionJSON))
@@ -77,6 +77,16 @@ func (ctrl *CreateTransaccionController) Handle(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	if transaccion.CuentaOrigenID != nil && transaccion.CuentaDestinoID != nil {
+		go websocket.NotifyTransfer(
+			id,
+			transaccion.CuentaOrigenID.String(),
+			transaccion.CuentaDestinoID.String(),
+			transaccion.Monto,
+			transaccion.Moneda,
+		)
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
