@@ -26,7 +26,8 @@ func (ctrl *LoginUsuarioController) Handle(c *gin.Context) {
 		return
 	}
 
-	usuario, err := ctrl.usecase.Execute(req.Email, req.Password)
+	// Usar ExecuteWithDashboard para obtener los datos completos del dashboard
+	dashboard, err := ctrl.usecase.ExecuteWithDashboard(req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciales incorrectas"})
 		return
@@ -34,6 +35,6 @@ func (ctrl *LoginUsuarioController) Handle(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"mensaje": "Login exitoso",
-		"usuario": usuario,
+		"usuario": dashboard,
 	})
 }

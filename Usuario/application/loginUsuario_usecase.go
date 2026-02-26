@@ -1,6 +1,7 @@
 package application
 
 import (
+	"banco-api/Usuario/domain/dto"
 	"banco-api/Usuario/domain/entities"
 	"banco-api/Usuario/domain/repository"
 )
@@ -23,4 +24,16 @@ func (uc *LoginUsuarioUseCase) Execute(email, password string) (*entities.Usuari
 		return nil, err
 	}
 	return usuario, nil
+}
+
+func (uc *LoginUsuarioUseCase) ExecuteWithDashboard(email, password string) (*dto.UserDashboardDTO, error) {
+	if email == "" || password == "" {
+		return nil, entities.ErrCredencialesInvalidas
+	}
+
+	dashboard, err := uc.repo.LoginUsuarioWithDashboard(email, password)
+	if err != nil {
+		return nil, err
+	}
+	return dashboard, nil
 }

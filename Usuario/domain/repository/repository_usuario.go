@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"banco-api/Usuario/domain/dto"
 	"banco-api/Usuario/domain/entities"
 
 	"github.com/google/uuid"
@@ -14,4 +15,5 @@ type IUsuarioRepository interface {
 	Delete(id uuid.UUID) error
 	GetByEmail(email string) (*entities.Usuario, error)
 	LoginUsuario(email, password string) (*entities.Usuario, error)
+	LoginUsuarioWithDashboard(email, password string) (*dto.UserDashboardDTO, error)
 }
