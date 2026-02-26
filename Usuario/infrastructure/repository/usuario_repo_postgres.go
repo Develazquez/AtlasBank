@@ -99,53 +99,22 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 		return nil, entities.ErrCredencialesInvalidas
 	}
 
-	// Estructura auxiliar para hacer el JOIN
-	var result struct {
-		UsuarioID             uuid.UUID
-		Nombre                string
-		ApellidoPaterno       string
-		ApellidoMaterno       string
-		Email                 string
-		CuentaID              uuid.UUID
-		Saldo                 float64
-		TipoTarjeta           string
-		UltimosDigitosTarjeta string
-		FechaExpiracion       string
-		NombreTarjeta         string
-		NumeroCuenta          string
-		CLABE                 string
-		IBAN                  string
-		CodigoSwift           string
-		BancoNombre           string
-	}
+	// Estructura auxiliar para mapear la vista
+	var dashboard dto.UserDashboardDTO
 
-	// Query usando Raw SQL para evitar problemas con alias
 	sqlQuery := `
 		SELECT 
-			u.id as usuario_id,
-			u.nombre as nombre,
-			u.apellido_paterno as apellido_paterno,
-			u.apellido_materno as apellido_materno,
-			u.email as email,
-			c.id as cuenta_id,
-			c.saldo as saldo,
-			c.tipo_tarjeta as tipo_tarjeta,
-			c.ultimos_digitos_tarjeta as ultimos_digitos_tarjeta,
-			c.fecha_expiracion as fecha_expiracion,
-			c.nombre_tarjeta as nombre_tarjeta,
-			c.numero_cuenta as numero_cuenta,
-			c.clabe as clabe,
-			c.iban as iban,
-			b.codigo_swift as codigo_swift,
-			b.nombre as banco_nombre
-		FROM usuarios u
-		JOIN cuenta c ON c.usuario_id = u.id
-		JOIN bancos b ON b.id = u.banco_id
-		WHERE u.id = $1 AND u.activo = true AND c.estado = 'ACTIVA'
+			id,
+			name,
+			wallet,
+			card,
+			recently_inf
+		FROM v_usuario_dashboard
+		WHERE id = $1
 		LIMIT 1
 	`
 
-	query := r.db.Raw(sqlQuery, usuario.ID).Scan(&result)
+	query := r.db.Raw(sqlQuery, usuario.ID.String()).Scan(&dashboard)
 
 	if query.Error != nil {
 		if query.Error == gorm.ErrRecordNotFound {
@@ -154,30 +123,5 @@ func (r *UsuarioRepositoryPostgres) LoginUsuarioWithDashboard(email, password st
 		return nil, query.Error
 	}
 
-	// Construir DTO con el nombre completo
-	nombreCompleto := result.Nombre + " " + result.ApellidoPaterno
-	if result.ApellidoMaterno != "" {
-		nombreCompleto += " " + result.ApellidoMaterno
-	}
-
-	dashboard := &dto.UserDashboardDTO{
-		UsuarioID:      result.UsuarioID,
-		NombreCompleto: nombreCompleto,
-		Email:          result.Email,
-		Wallet:         result.Saldo,
-		CuentaID:       result.CuentaID,
-		NumeroCuenta:   result.NumeroCuenta,
-		CLABE:          result.CLABE,
-		IBAN:           result.IBAN,
-		CodigoSwift:    result.CodigoSwift,
-		BancoNombre:    result.BancoNombre,
-		Card: dto.CardDTO{
-			NameCard:   result.TipoTarjeta,
-			NumCard:    result.UltimosDigitosTarjeta,
-			Expires:    result.FechaExpiracion,
-			CardHolder: result.NombreTarjeta,
-		},
-	}
-
-	return dashboard, nil
+	return &dashboard, nil
 }
