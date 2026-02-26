@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"banco-api/Usuario/application"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,13 +28,13 @@ func (ctrl *LoginUsuarioController) Handle(c *gin.Context) {
 		return
 	}
 
-	// Usar ExecuteWithDashboard para obtener los datos completos del dashboard
 	dashboard, err := ctrl.usecase.ExecuteWithDashboard(req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciales incorrectas"})
 		return
 	}
-
+	dashboardJSON, _ := json.MarshalIndent(dashboard, "", "  ")
+	fmt.Printf("Dashboard data: %s\n", string(dashboardJSON))
 	c.JSON(http.StatusOK, gin.H{
 		"mensaje": "Login exitoso",
 		"usuario": dashboard,
