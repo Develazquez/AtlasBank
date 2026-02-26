@@ -4,6 +4,8 @@ import (
 	"banco-api/Cuenta/domain/repository"
 	"banco-api/Transaccion/domain/entities"
 	transaccionRepo "banco-api/Transaccion/domain/repository"
+	cuentaEntities "banco-api/Cuenta/domain/entities"
+
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -32,32 +34,31 @@ func (uc *CreateTransaccionUseCase) Execute(transaccion *entities.Transaccion) (
 		return uuid.Nil, err
 	}
 
-	// Actualizar saldos dentro de una transacción BD
 	err := uc.db.Transaction(func(tx *gorm.DB) error {
 
 		// Descontar saldo de cuenta origen
 		if transaccion.CuentaOrigenID != nil {
-			origen, err := uc.cuentaRepo.GetByID(*transaccion.CuentaOrigenID)
-			if err != nil || origen == nil {
+			var origen cuentaEntities.Cuenta
+			if err := tx.First(&origen, "id = ?", transaccion.CuentaOrigenID).Error; err != nil {
 				return entities.ErrCuentaOrigen
 			}
 			if origen.Saldo < transaccion.Monto {
 				return entities.ErrSaldoInsuficiente
 			}
 			origen.Saldo -= transaccion.Monto
-			if err := uc.cuentaRepo.Update(origen); err != nil {
+			if err := tx.Save(&origen).Error; err != nil {
 				return err
 			}
 		}
 
 		// Acreditar saldo a cuenta destino
 		if transaccion.CuentaDestinoID != nil {
-			destino, err := uc.cuentaRepo.GetByID(*transaccion.CuentaDestinoID)
-			if err != nil || destino == nil {
+			var destino cuentaEntities.Cuenta
+			if err := tx.First(&destino, "id = ?", transaccion.CuentaDestinoID).Error; err != nil {
 				return entities.ErrCuentaDestino
 			}
 			destino.Saldo += transaccion.Monto
-			if err := uc.cuentaRepo.Update(destino); err != nil {
+			if err := tx.Save(&destino).Error; err != nil {
 				return err
 			}
 		}
